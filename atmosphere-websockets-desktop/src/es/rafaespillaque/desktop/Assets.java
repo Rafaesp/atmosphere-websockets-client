@@ -1,4 +1,4 @@
-package es.rafaespillaque;
+package es.rafaespillaque.desktop;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;

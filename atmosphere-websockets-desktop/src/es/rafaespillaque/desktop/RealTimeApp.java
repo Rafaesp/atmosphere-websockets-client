@@ -1,4 +1,4 @@
-package es.rafaespillaque;
+package es.rafaespillaque.desktop;
 
 /*
  * socket.io-java-client Test.java
@@ -8,7 +8,6 @@ package es.rafaespillaque;
  * 
  * See LICENSE file for more information
  */
-import io.socket.SocketIO;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -25,12 +24,10 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 
 public class RealTimeApp implements ApplicationListener {
-	private SocketIO socket;
 	private SpriteBatch batcher;
 	private HashMap<Integer, Model> users;
 	private Model user;
 	private int id = -1;
-	private MyCallbackAdapter callback;
 	private Vector2 pointer;
 	private final float dt = 0.01f;
 	private float accumulator = 0f;
@@ -39,6 +36,7 @@ public class RealTimeApp implements ApplicationListener {
 	
 	@Override
 	public void create() {
+		System.out.println("create");
 		batcher = new SpriteBatch();
 		users = new HashMap<Integer, Model>();
 		user = new Model(true);
@@ -145,67 +143,36 @@ public class RealTimeApp implements ApplicationListener {
 	}
 
 	private void initSocketIO() {
-		socket = new SocketIO();
-		callback = new MyCallbackAdapter() {
-
-			@Override
-			public void on(String event, JSONObject json) {
-				try {
-					if (event.equals("id")) {
-						id = json.getInt("id");
-						Log.w("tengo id!!:  " + id);
-					}else if(event.equals("newPos")){
-						int newPosId = json.getInt("id"); 
-						if(newPosId != id){
-							updatePos(newPosId, json.getJSONObject("pos"));
-						}
-					}
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
-
-			}
-
-		};
-		try {
-//			URL url = new URL("http://127.0.0.1:8080");
-			URL url = new URL("http://node-tests.nodester.com:80");
-//			URL url = new URL("http://192.168.0.19:8080");
-//			URL url = new URL("http://85.136.162.160:8080");
-			socket.connect(url, new MyIOCallback(callback));
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
 
 	}
 
 	private void sendPos() {
-		if(id != -1) {
-			try {
-				String json = "{'x':" + user.pos.x + " ,'y':" + user.pos.y
-						+ "}";
-
-				socket.emit("newPos", new JSONObject(json));
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
-		}
+//		if(id != -1) {
+//			try {
+//				String json = "{'x':" + user.pos.x + " ,'y':" + user.pos.y
+//						+ "}";
+//
+//				socket.emit("newPos", new JSONObject(json));
+//			} catch (JSONException e) {
+//				e.printStackTrace();
+//			}
+//		}
 	}
 	
 	private void updatePos(int newPosId, JSONObject jsonObject) {
-		try {
-			float x = Float.parseFloat(jsonObject.getString("x"));
-			float y = Float.parseFloat(jsonObject.getString("y"));
-			Model m = new Model(false);
-			m.pos.set(x, y);
-			users.put(newPosId, m);
-			
-		
-		} catch (NumberFormatException e) {
-			e.printStackTrace();
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			float x = Float.parseFloat(jsonObject.getString("x"));
+//			float y = Float.parseFloat(jsonObject.getString("y"));
+//			Model m = new Model(false);
+//			m.pos.set(x, y);
+//			users.put(newPosId, m);
+//			
+//		
+//		} catch (NumberFormatException e) {
+//			e.printStackTrace();
+//		} catch (JSONException e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	@Override
