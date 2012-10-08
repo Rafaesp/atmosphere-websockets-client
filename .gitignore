@@ -11,3 +11,4 @@ bin
 *.war
 *.ear
 atmosphere-websockets-desktop/hs_err_pid*
+target/
