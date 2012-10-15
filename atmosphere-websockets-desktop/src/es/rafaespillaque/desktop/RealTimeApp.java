@@ -42,100 +42,69 @@ public class RealTimeApp implements ApplicationListener {
     private float accumulator = 0f;
 
     private WebSocket websocket;
+    
+    private int counter = 0;
+
+    private float time = 0f;
+
 
     @Override
     public void create() {
         batcher = new SpriteBatch();
         users = new HashMap<Integer, Model>();
         user = new Model(true);
-        user.pos.set(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
+        user.pos.set(0, Gdx.graphics.getHeight() / 2);
         pointer = new Vector2();
 
         Assets.load();
 
-        try {
-            initWebSocket();
-        } catch (InterruptedException e) {
-            System.out.println("int " + e);
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            System.out.println("ex " + e);
-            e.printStackTrace();
-        } catch (IOException e) {
-            System.out.println("io " + e);
-            e.printStackTrace();
-        }
-
+//        try {
+//            initWebSocket();
+//        } catch (InterruptedException e) {
+//            System.out.println("int " + e);
+//            e.printStackTrace();
+//        } catch (ExecutionException e) {
+//            System.out.println("ex " + e);
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            System.out.println("io " + e);
+//            e.printStackTrace();
+//        }
     }
 
     @Override
     public void render() {
         float frameTime = Gdx.graphics.getDeltaTime();
+        time += frameTime;
         accumulator += frameTime;
         update(frameTime);
         present();
     }
 
     private void update(float frameTime) {
-        boolean keys = false;
-        boolean touched = checkScreen();
-        if (!touched) {
-            keys = checkKeys();
-        }
-        if (touched || keys) {
-            sendPos();
-        }
+//        boolean keys = false;
+//        boolean touched = checkScreen();
+//        if (!touched) {
+//            keys = checkKeys();
+//        }
+//        if (touched || keys) {
+//            sendPos();
+//        }
+//        if(frameTime > 0.05f) {
+//            frameTime = 0.05f;
+//        }
+//        
+//        if(counter <= 1000) {
+//            user.dir.x = 1;
+//        }
+        // counter++;
+
+        
         while (accumulator >= dt) {
-            user.update(dt);
-            // for(Model user : users.values()){
-            // user.update(dt);
-            // }
+            user.update(dt, time);
             accumulator -= dt;
         }
 
-    }
-
-    private boolean checkScreen() {
-        if (Gdx.input.isTouched()) {
-
-            pointer.set(Gdx.input.getX(), Gdx.input.getY());
-
-            if (pointer.x > 3 * Gdx.graphics.getWidth() / 4) {
-                user.dir.x = 1f;
-            }
-            if (pointer.x < Gdx.graphics.getWidth() / 4) {
-                user.dir.x = -1f;
-            }
-            if (pointer.y > 3 * Gdx.graphics.getHeight() / 4) {
-                user.dir.y = -1f;
-            }
-            if (pointer.y < Gdx.graphics.getHeight() / 4) {
-                user.dir.y = 1f;
-            }
-            return true;
-        }
-        return false;
-    }
-
-    private boolean checkKeys() {
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.UP)
-                || Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-
-            if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-                user.dir.x = -1f;
-            }
-            if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-                user.dir.x = 1f;
-            }
-            if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-                user.dir.y = 1f;
-            }
-            if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-                user.dir.y = -1f;
-            }
-            return true;
-        }
-        return false;
     }
 
     private void present() {

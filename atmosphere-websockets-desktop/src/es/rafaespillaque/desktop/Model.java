@@ -3,25 +3,43 @@ package es.rafaespillaque.desktop;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 
+import es.rafaespillaque.desktop.input.InputEvent;
+import es.rafaespillaque.desktop.input.ModelController;
+import es.rafaespillaque.desktop.input.ModelJSONController;
+import es.rafaespillaque.desktop.input.ModelMouseController;
+
 public class Model {
 	public static final float VELOCITY = 120f;
 	public Vector2 pos = new Vector2(0, 0);
 	public Vector2 vel = new Vector2(0, 0);
-	public Vector2 dir = new Vector2(0, 0);
 	private float stateTime = 0f;
 	private boolean local;
 	
-	public Model() {
-	}
+	private ModelController controller;
 	
 	public Model(boolean local) {
 		this.local = local;
+//		controller = new ModelMouseController();
+		controller = new ModelJSONController();
 	}
 	
-	public void update(float dt) {
+	public void update(float dt, float time) {
 		stateTime += dt;
-		pos.x += dir.x * dt * VELOCITY;
-		pos.y += dir.y * dt * VELOCITY;
+		controller.update(time);
+		InputEvent event;
+		while((event = controller.poll()) != null) {
+		    switch (event.action) {
+            case InputEvent.LEFT:
+                pos.x += -1f * dt * VELOCITY;
+                break;
+            case InputEvent.RIGHT:
+                pos.x += 1f * dt * VELOCITY;
+                break;
+            default:
+                break;
+            }
+		}
+//		pos.y += dir.y * dt * VELOCITY;
 	}
 	
 	public void render(SpriteBatch batcher) {
@@ -30,4 +48,5 @@ public class Model {
 		else
 			batcher.draw(Assets.redCircle, pos.x, pos.y);
 	}
+	
 }
