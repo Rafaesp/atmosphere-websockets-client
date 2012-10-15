@@ -25,5 +25,9 @@ public abstract class ModelController{
         return queue.poll();
     }
     
+    public void free(InputEvent e) {
+        pool.free(e);
+    }
+    
     public abstract void update(float time);
 }

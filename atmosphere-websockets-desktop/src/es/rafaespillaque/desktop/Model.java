@@ -38,6 +38,7 @@ public class Model {
             default:
                 break;
             }
+		    controller.free(event);
 		}
 //		pos.y += dir.y * dt * VELOCITY;
 	}
