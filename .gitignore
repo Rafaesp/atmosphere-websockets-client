@@ -7,7 +7,6 @@ bin
 *.class
 
 # Package Files #
-*.jar
 *.war
 *.ear
 atmosphere-websockets-desktop/hs_err_pid*
