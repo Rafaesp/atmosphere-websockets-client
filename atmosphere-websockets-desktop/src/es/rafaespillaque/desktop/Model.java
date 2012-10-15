@@ -6,7 +6,6 @@ import com.badlogic.gdx.math.Vector2;
 import es.rafaespillaque.desktop.input.InputEvent;
 import es.rafaespillaque.desktop.input.ModelController;
 import es.rafaespillaque.desktop.input.ModelJSONController;
-import es.rafaespillaque.desktop.input.ModelMouseController;
 
 public class Model {
 	public static final float VELOCITY = 120f;
@@ -29,10 +28,10 @@ public class Model {
 		InputEvent event;
 		while((event = controller.poll()) != null) {
 		    switch (event.action) {
-            case InputEvent.LEFT:
+            case LEFT:
                 pos.x += -1f * dt * VELOCITY;
                 break;
-            case InputEvent.RIGHT:
+            case RIGHT:
                 pos.x += 1f * dt * VELOCITY;
                 break;
             default:

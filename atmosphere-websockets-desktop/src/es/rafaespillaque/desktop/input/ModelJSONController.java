@@ -1,5 +1,8 @@
 package es.rafaespillaque.desktop.input;
 
+import es.rafaespillaque.desktop.input.InputEvent;
+import es.rafaespillaque.desktop.input.InputEvent.Direction;
+
 public class ModelJSONController extends ModelController {
 
     private float[] deltas;
@@ -18,7 +21,7 @@ public class ModelJSONController extends ModelController {
         while (time >= deltas[index]) {
             index++;
             InputEvent e = pool.obtain();
-            e.action = InputEvent.RIGHT;
+            e.action = Direction.RIGHT;
             offer(e);
         }
     }
