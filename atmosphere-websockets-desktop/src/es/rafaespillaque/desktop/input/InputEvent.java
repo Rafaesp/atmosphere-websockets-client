@@ -3,9 +3,12 @@ package es.rafaespillaque.desktop.input;
 
 
 public class InputEvent{
-    public enum Direction {LEFT, RIGHT, UP, DOWN};
+	public static final String LEFT = "l";
+	public static final String RIGHT = "r";
+	public static final String UP = "u";
+    public static final String DOWN = "d";
     
-    public Direction action;
+    public String action;
     public float timestamp;
     
 }

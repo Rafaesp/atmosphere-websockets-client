@@ -1,19 +1,8 @@
 package es.rafaespillaque.desktop;
 
-/*
- * socket.io-java-client Test.java
- *
- * Copyright (c) 2012, Enno Boland
- * socket.io-java-client is a implementation of the socket.io protocol in Java.
- * 
- * See LICENSE file for more information
- */
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
-
-import org.json.JSONObject;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
@@ -21,6 +10,9 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.websocket.WebSocket;
 import com.ning.http.client.websocket.WebSocketTextListener;
@@ -28,48 +20,40 @@ import com.ning.http.client.websocket.WebSocketUpgradeHandler;
 
 public class RealTimeApp implements ApplicationListener {
     private SpriteBatch batcher;
-
     private HashMap<Integer, Model> users;
-
     private Model user;
-
-    private int id = -1;
-
+    private String id;
     private Vector2 pointer;
-
     private final float dt = 0.01f;
-
     private float accumulator = 0f;
-
     private WebSocket websocket;
-    
-    private int counter = 0;
-
     private float time = 0f;
-
+    
 
     @Override
     public void create() {
         batcher = new SpriteBatch();
         users = new HashMap<Integer, Model>();
-        user = new Model(true);
+        user = new Model();
+        user.setLocal(true);
         user.pos.set(0, Gdx.graphics.getHeight() / 2);
         pointer = new Vector2();
 
         Assets.load();
 
-//        try {
-//            initWebSocket();
-//        } catch (InterruptedException e) {
-//            System.out.println("int " + e);
-//            e.printStackTrace();
-//        } catch (ExecutionException e) {
-//            System.out.println("ex " + e);
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            System.out.println("io " + e);
-//            e.printStackTrace();
-//        }
+        try {
+            initWebSocket();
+            user.setWebSocket(websocket);
+        } catch (InterruptedException e) {
+            System.out.println("int " + e);
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            System.out.println("ex " + e);
+            e.printStackTrace();
+        } catch (IOException e) {
+            System.out.println("io " + e);
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -82,23 +66,6 @@ public class RealTimeApp implements ApplicationListener {
     }
 
     private void update(float frameTime) {
-//        boolean keys = false;
-//        boolean touched = checkScreen();
-//        if (!touched) {
-//            keys = checkKeys();
-//        }
-//        if (touched || keys) {
-//            sendPos();
-//        }
-//        if(frameTime > 0.05f) {
-//            frameTime = 0.05f;
-//        }
-//        
-//        if(counter <= 1000) {
-//            user.dir.x = 1;
-//        }
-        // counter++;
-
         
         while (accumulator >= dt) {
             user.update(dt, time);
@@ -122,11 +89,12 @@ public class RealTimeApp implements ApplicationListener {
 
     private void initWebSocket() throws InterruptedException, ExecutionException, IOException {
         AsyncHttpClient c = new AsyncHttpClient();
-        websocket = c.prepareGet("ws://127.0.0.1:8080/atmosphere-websockets")
+        websocket = c.prepareGet("ws://127.0.0.1:8080/atmosphere-websockets-server")
                 .execute(new WebSocketUpgradeHandler.Builder().addWebSocketListener(new WebSocketTextListener() {
 
                     public void onMessage(String message) {
                         System.out.println("Message Received: " + message);
+                        
                     }
 
                     public void onOpen(WebSocket websocket) {
@@ -150,20 +118,7 @@ public class RealTimeApp implements ApplicationListener {
                 }).build()).get();
     }
 
-    private void sendPos() {
-        // if(id != -1) {
-        // try {
-        // String json = "{'x':" + user.pos.x + " ,'y':" + user.pos.y
-        // + "}";
-        //
-        // socket.emit("newPos", new JSONObject(json));
-        // } catch (JSONException e) {
-        // e.printStackTrace();
-        // }
-        // }
-    }
-
-    private void updatePos(int newPosId, JSONObject jsonObject) {
+    private void updatePos(int newPosId, String json) {
         // try {
         // float x = Float.parseFloat(jsonObject.getString("x"));
         // float y = Float.parseFloat(jsonObject.getString("y"));
