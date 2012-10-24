@@ -4,14 +4,14 @@ import es.rafaespillaque.desktop.BaseWebSocketTextListener;
 import es.rafaespillaque.desktop.WebSocket;
 import es.rafaespillaque.desktop.input.InputEvent;
 
-public class ModelJSONController extends ModelController {
+public class ModelOnlineController extends ModelController {
 
     private float[] deltas;
 
     private int index = 0;
     private WebSocket ws;
 
-    public ModelJSONController() {
+    public ModelOnlineController() {
     	ws = WebSocket.get();
     	ws.addWebSocketListener(new BaseWebSocketTextListener(){
 
@@ -29,12 +29,12 @@ public class ModelJSONController extends ModelController {
 
     @Override
     public void update(float time) {
-        while (time >= deltas[index]) {
-            index++;
-            InputEvent e = pool.obtain();
-            e.action = InputEvent.RIGHT;
-            offer(e);
-        }
+//        while (time >= deltas[index]) {
+//            index++;
+//            InputEvent e = pool.obtain();
+//            e.action = InputEvent.RIGHT;
+//            offer(e);
+//        }
     }
 
 }

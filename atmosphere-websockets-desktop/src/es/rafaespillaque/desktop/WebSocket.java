@@ -3,6 +3,9 @@ package es.rafaespillaque.desktop;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.websocket.WebSocketListener;
 import com.ning.http.client.websocket.WebSocketUpgradeHandler;
@@ -11,18 +14,40 @@ public class WebSocket{
 	
 	private static WebSocket websocket;
 	private com.ning.http.client.websocket.WebSocket ws;
+	private String uuid;
 	
 	private WebSocket(){
+		BaseWebSocketTextListener baseWS = new BaseWebSocketTextListener(){
+
+			@Override
+			public void onMessage(String message) {
+				JsonParser parser = new JsonParser();
+				JsonElement jElement = parser.parse(message);
+				JsonObject jObj = jElement.getAsJsonObject();
+				if(jObj.get("type").getAsString().equals("uuid")){
+					uuid = jObj.get("uuid").getAsString();
+					websocket.removeWebSocketListener(this);
+				}
+			}
+			
+		};
+		
 		AsyncHttpClient c = new AsyncHttpClient();
 		try {
-			ws = c.prepareGet("ws://127.0.0.1:8080/atmosphere-websockets-server")
-			        .execute(new WebSocketUpgradeHandler.Builder().build()).get();
+			ws = c.prepareGet("ws://127.0.0.1:8080/atmosphere-websockets")
+			        .execute(new WebSocketUpgradeHandler.Builder().addWebSocketListener(baseWS).build()).get();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} catch (ExecutionException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+	}
+	
+	public static void init(){
+		if(websocket == null){
+			websocket = new WebSocket();
 		}
 	}
 
@@ -49,6 +74,7 @@ public class WebSocket{
 
 	public com.ning.http.client.websocket.WebSocket sendTextMessage(
 			String message) {
+		System.out.println("Enviando: "+message);
 		return ws.sendTextMessage(message);
 	}
 
@@ -81,6 +107,10 @@ public class WebSocket{
 
 	public void close() {
 		ws.close();
+	}
+	
+	public String getUUID(){
+		return uuid;
 	}
 
 }
