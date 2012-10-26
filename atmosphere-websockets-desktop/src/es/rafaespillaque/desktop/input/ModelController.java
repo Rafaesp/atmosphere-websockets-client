@@ -5,7 +5,7 @@ import java.util.Queue;
 
 
 public abstract class ModelController{
-    private static final int MAX = 5;
+    private static final int MAX = 20;
     private Queue<InputEvent> queue;
     protected InputEventPool pool;
     

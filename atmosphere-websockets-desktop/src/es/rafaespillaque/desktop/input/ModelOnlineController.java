@@ -1,40 +1,56 @@
 package es.rafaespillaque.desktop.input;
 
-import es.rafaespillaque.desktop.BaseWebSocketTextListener;
-import es.rafaespillaque.desktop.WebSocket;
-import es.rafaespillaque.desktop.input.InputEvent;
+import es.rafaespillaque.desktop.net.UpdateMessageListener;
+import es.rafaespillaque.desktop.net.WebSocket2;
 
 public class ModelOnlineController extends ModelController {
 
-    private float[] deltas;
+	private static final int SIZE = 100;
+	
+	private String uuid;
+    private String[] movs;
+    private float[] times;
 
+    private int count = 0;
     private int index = 0;
-    private WebSocket ws;
+    private Object lock = new Object();
 
-    public ModelOnlineController() {
-    	ws = WebSocket.get();
-    	ws.addWebSocketListener(new BaseWebSocketTextListener(){
-
+    public ModelOnlineController(String id) {
+    	uuid = id;
+    	WebSocket2.get().addUpdateMessageListener(new UpdateMessageListener() {
+			
 			@Override
-			public void onMessage(String message) {
-				//TODO :) parsear message y añadir a lista deltas y actions :)
+			public void OnUpdateMessage(String id, float time, String dir) {
+				if (uuid.equals(id)) {
+					synchronized (lock) {
+						movs[count] = dir;
+						times[count] = time;
+					}
+
+					count++;
+				}
 			}
-    		
-    	});
-//        float[] deltas2 = { 0.01f, 0.05f, 0.1f, 0.2f, 0.8f, 1f, 3f, 3.02f, 3.1f, 4f, 4.1f, 4.5f, 4.6f, 
-//                4.7f, 4.8f, 4.95644f, 4.956445f, 5.00001f, 5.00002f,
-//                5.5f, 6.0f, 6.0001f, 100f };
-//        deltas = deltas2;
+		});
+    	
+    	movs = new String[SIZE];
+    	times = new float[SIZE];
+    	
     }
 
     @Override
     public void update(float time) {
-//        while (time >= deltas[index]) {
-//            index++;
-//            InputEvent e = pool.obtain();
-//            e.action = InputEvent.RIGHT;
-//            offer(e);
-//        }
+    	index = 0;
+    	synchronized (lock) {
+            while (time >= times[index] && index < count) {
+                InputEvent e = pool.obtain();
+                e.timestamp = times[index];
+                e.action = movs[index];
+                offer(e);
+                index++;
+            }
+            count = 0;
+		}
+
     }
 
 }

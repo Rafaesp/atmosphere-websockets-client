@@ -1,4 +1,4 @@
-package es.rafaespillaque.desktop;
+package es.rafaespillaque.desktop.net;
 
 import com.ning.http.client.websocket.WebSocket;
 import com.ning.http.client.websocket.WebSocketTextListener;

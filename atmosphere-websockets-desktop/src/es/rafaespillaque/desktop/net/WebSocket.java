@@ -1,41 +1,68 @@
-package es.rafaespillaque.desktop;
+package es.rafaespillaque.desktop.net;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.websocket.WebSocketListener;
 import com.ning.http.client.websocket.WebSocketUpgradeHandler;
 
-public class WebSocket{
-	
+public class WebSocket {
+
+	private static final String WS_URL = "ws://127.0.0.1:8081/";
 	private static WebSocket websocket;
 	private com.ning.http.client.websocket.WebSocket ws;
 	private String uuid;
-	
-	private WebSocket(){
-		BaseWebSocketTextListener baseWS = new BaseWebSocketTextListener(){
+
+	private ArrayList<UpdateMessageListener> updateListeners = new ArrayList<UpdateMessageListener>();
+	private ArrayList<NewPlayerMessageListener> newPlayerListeners = new ArrayList<NewPlayerMessageListener>();
+	private JsonParser parser = new JsonParser();
+
+	private WebSocket() {
+		BaseWebSocketTextListener baseWS = new BaseWebSocketTextListener() {
 
 			@Override
 			public void onMessage(String message) {
-				JsonParser parser = new JsonParser();
+				System.out.println("onMessage " + message);
 				JsonElement jElement = parser.parse(message);
 				JsonObject jObj = jElement.getAsJsonObject();
-				if(jObj.get("type").getAsString().equals("uuid")){
+				String type = jObj.get("type").getAsString();
+
+				if (type.equals("uuid")) {
 					uuid = jObj.get("uuid").getAsString();
-					websocket.removeWebSocketListener(this);
+					System.out.println("uuid obtenido: " + uuid);
+				} else if (type.equals("update")) {
+					for (int i = 0; i < updateListeners.size(); ++i) {
+						updateListeners.get(i).OnUpdateMessage(
+								jObj.get("uuid").getAsString(),
+								jObj.get("time").getAsFloat(),
+								jObj.get("dir").getAsString());
+					}
+				} else if (type.equals("newplayer")) {
+					for (int i = 0; i < updateListeners.size(); ++i) {
+						newPlayerListeners.get(i).OnNewPlayerMessage(jObj.get("uuid").getAsString());
+					}
 				}
 			}
-			
+
+			@Override
+			public void onOpen(
+					com.ning.http.client.websocket.WebSocket websocket) {
+				System.out.println("onOpen");
+			}
+
 		};
-		
+
 		AsyncHttpClient c = new AsyncHttpClient();
 		try {
-			ws = c.prepareGet("ws://127.0.0.1:8080/atmosphere-websockets")
-			        .execute(new WebSocketUpgradeHandler.Builder().addWebSocketListener(baseWS).build()).get();
+			ws = c.prepareGet(WS_URL)
+					.execute(
+							new WebSocketUpgradeHandler.Builder()
+									.addWebSocketListener(baseWS).build())
+					.get();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} catch (ExecutionException e) {
@@ -43,21 +70,21 @@ public class WebSocket{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-	
-	public static void init(){
-		if(websocket == null){
-			websocket = new WebSocket();
-		}
+
 	}
 
-	public static WebSocket get(){
-		if(websocket == null){
-			websocket = new WebSocket();
+	private static void init() {
+		websocket = new WebSocket();
+		websocket.sendTextMessage("{type=uuid}");
+	}
+
+	public static WebSocket get() {
+		if (websocket == null) {
+			init();
 		}
 		return websocket;
 	}
-	
+
 	public com.ning.http.client.websocket.WebSocket sendMessage(byte[] message) {
 		return ws.sendMessage(message);
 	}
@@ -74,7 +101,6 @@ public class WebSocket{
 
 	public com.ning.http.client.websocket.WebSocket sendTextMessage(
 			String message) {
-		System.out.println("Enviando: "+message);
 		return ws.sendTextMessage(message);
 	}
 
@@ -91,16 +117,6 @@ public class WebSocket{
 		return ws.sendPong(payload);
 	}
 
-	public com.ning.http.client.websocket.WebSocket addWebSocketListener(
-			WebSocketListener l) {
-		return ws.addWebSocketListener(l);
-	}
-
-	public com.ning.http.client.websocket.WebSocket removeWebSocketListener(
-			WebSocketListener l) {
-		return ws.removeWebSocketListener(l);
-	}
-
 	public boolean isOpen() {
 		return ws.isOpen();
 	}
@@ -108,9 +124,17 @@ public class WebSocket{
 	public void close() {
 		ws.close();
 	}
-	
-	public String getUUID(){
+
+	public String getUUID() {
 		return uuid;
+	}
+
+	public void addNewPlayerMessageListener(NewPlayerMessageListener l) {
+		newPlayerListeners.add(l);
+	}
+
+	public void addUpdateMessageListener(UpdateMessageListener l) {
+		updateListeners.add(l);
 	}
 
 }
