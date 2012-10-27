@@ -2,19 +2,17 @@ package es.rafaespillaque.desktop.net;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.websocket.WebSocketListener;
 import com.ning.http.client.websocket.WebSocketUpgradeHandler;
 
 public class WebSocket2 {
 
-	private static final String WS_URL = "ws://127.0.0.1:8081/";
+	private static final String WS_URL = "ws://ec2-54-247-44-127.eu-west-1.compute.amazonaws.com:8081/";
 	private static WebSocket2 websocket;
 	private com.ning.http.client.websocket.WebSocket ws;
 	private String uuid;

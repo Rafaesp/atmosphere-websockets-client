@@ -41,13 +41,16 @@ public class Model {
                 pos.x += -1f * dt * VELOCITY;
 		    }else if(event.action.equals(InputEvent.RIGHT)){
                 pos.x += 1f * dt * VELOCITY;
+            }else if(event.action.equals(InputEvent.UP)){
+            	pos.y += 1f * dt * VELOCITY;
+            }else if(event.action.equals(InputEvent.DOWN)){
+            	pos.y -= 1f * dt * VELOCITY;
             }
 		    if(local){
 		    	sendPos(event.action, time);
 		    }
 		    controller.free(event);
 		}
-//		pos.y += dir.y * dt * VELOCITY;
 	}
 	
 	public void render(SpriteBatch batcher) {

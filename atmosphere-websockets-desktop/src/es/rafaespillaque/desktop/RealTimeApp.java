@@ -18,39 +18,62 @@ public class RealTimeApp implements ApplicationListener {
 	private final float dt = 0.01f;
 	private float accumulator = 0f;
 	private float time = 0f;
+	private boolean init = false;
 	
 	@Override
 	public void create() {
-		String uuid;
-		while((uuid = WebSocket.get().getUUID()) == null){
-			try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) {
-			}
-		}
-		
-		batcher = new SpriteBatch();
-		users = new LinkedList<Model>();
-		user = new Model(uuid, true);
-		user.pos.set(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
-		
-		while((WebSocket2.get().getUUID()) == null){}
-		Model m2 = new Model(uuid, false);
-		m2.pos.set(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + 100);
-		users.add(m2);
-
+		init();
 		Assets.load();
+	}
 
-		WebSocket.get().addNewPlayerMessageListener(
-				new NewPlayerMessageListener() {
-
-					@Override
-					public void OnNewPlayerMessage(String uuid) {
-						Model m = new Model(uuid, false);
-						m.pos.set(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + 100);
-						users.add(m);
+	private void init() {
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				String uuid;
+				while((uuid = WebSocket.get().getUUID()) == null){
+					try {
+						Thread.sleep(10);
+					} catch (InterruptedException e) {
 					}
-				});
+				}
+				
+				batcher = new SpriteBatch();
+				users = new LinkedList<Model>();
+				user = new Model(uuid, true);
+				user.pos.set(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
+				
+				while((WebSocket2.get().getUUID()) == null){
+					try {
+						Thread.sleep(10);
+					} catch (InterruptedException e) {
+					}
+				}
+				Model m2 = new Model(uuid, false);
+				m2.pos.set(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + 100);
+				users.add(m2);
+
+
+				WebSocket.get().addNewPlayerMessageListener(
+						new NewPlayerMessageListener() {
+
+							@Override
+							public void OnNewPlayerMessage(String uuid) {
+								Model m = new Model(uuid, false);
+								m.pos.set(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + 100);
+								users.add(m);
+							}
+						});
+				
+				synchronized (RealTimeApp.this) {
+					System.out.println("init true");
+					init = true;	
+				}
+				
+			}
+		}).start();
+		
 	}
 		
 	@Override
@@ -63,6 +86,10 @@ public class RealTimeApp implements ApplicationListener {
 	}
 
 	private void update(float frameTime) {
+		synchronized (RealTimeApp.this) {
+		if(!init){
+			return;
+		}}
 
 		while (accumulator >= dt) {
 			user.update(dt, time);
@@ -72,11 +99,13 @@ public class RealTimeApp implements ApplicationListener {
 			accumulator -= dt;
 		}
 		
-		System.out.println(String.format("%f  -  %f", user.pos.x, users.get(0).pos.x));
-
 	}
 
 	private void present() {
+		synchronized (RealTimeApp.this) {
+		if(!init){
+			return;
+		}}
 		GL10 gl = Gdx.graphics.getGL10();
 		gl.glClearColor(1, 1, 1, 1);
 		gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
