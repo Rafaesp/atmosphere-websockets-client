@@ -12,7 +12,7 @@ import com.ning.http.client.websocket.WebSocketUpgradeHandler;
 
 public class WebSocket2 {
 
-	private static final String WS_URL = "ws://ec2-54-247-44-127.eu-west-1.compute.amazonaws.com:8081/";
+	private static final String WS_URL = WebSocket.WS_URL;
 	private static WebSocket2 websocket;
 	private com.ning.http.client.websocket.WebSocket ws;
 	private String uuid;
@@ -26,7 +26,6 @@ public class WebSocket2 {
 
 			@Override
 			public void onMessage(String message) {
-				System.out.println("onMessage " + message);
 				JsonElement jElement = parser.parse(message);
 				JsonObject jObj = jElement.getAsJsonObject();
 				String type = jObj.get("type").getAsString();

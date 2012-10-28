@@ -12,7 +12,9 @@ import com.ning.http.client.websocket.WebSocketUpgradeHandler;
 
 public class WebSocket {
 
-	private static final String WS_URL = "ws://ec2-54-247-44-127.eu-west-1.compute.amazonaws.com:8081/";
+	public static final String WS_URL = "ws://ec2-54-247-44-127.eu-west-1.compute.amazonaws.com:8081/";
+//	public static final String WS_URL = "ws://localhost:8081/";
+	
 	private static WebSocket websocket;
 	private com.ning.http.client.websocket.WebSocket ws;
 	private String uuid;
@@ -20,13 +22,16 @@ public class WebSocket {
 	private ArrayList<UpdateMessageListener> updateListeners = new ArrayList<UpdateMessageListener>();
 	private ArrayList<NewPlayerMessageListener> newPlayerListeners = new ArrayList<NewPlayerMessageListener>();
 	private JsonParser parser = new JsonParser();
+	
+	public static int enviados, recibidos = 0;
 
 	private WebSocket() {
+		
 		BaseWebSocketTextListener baseWS = new BaseWebSocketTextListener() {
 
 			@Override
 			public void onMessage(String message) {
-				System.out.println("onMessage " + message);
+				recibidos++;
 				JsonElement jElement = parser.parse(message);
 				JsonObject jObj = jElement.getAsJsonObject();
 				String type = jObj.get("type").getAsString();
@@ -101,6 +106,7 @@ public class WebSocket {
 
 	public com.ning.http.client.websocket.WebSocket sendTextMessage(
 			String message) {
+		enviados++;
 		return ws.sendTextMessage(message);
 	}
 
