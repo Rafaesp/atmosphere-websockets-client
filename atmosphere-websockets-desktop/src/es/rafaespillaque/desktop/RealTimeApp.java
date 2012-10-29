@@ -1,5 +1,6 @@
 package es.rafaespillaque.desktop;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 
 import com.badlogic.gdx.ApplicationListener;
@@ -93,8 +94,9 @@ public class RealTimeApp implements ApplicationListener {
 
 		while (accumulator >= dt) {
 			user.update(dt, time);
-			for(Model m : users){
-				m.update(dt, time);
+			for(int i = 0; i<users.size(); ++i){
+				Model user = users.get(i);
+				user.update(dt, time);
 			}
 			accumulator -= dt;
 		}
@@ -112,7 +114,8 @@ public class RealTimeApp implements ApplicationListener {
 
 		batcher.begin();
 		user.render(batcher);
-		for (Model user : users) {
+		for(int i = 0; i<users.size(); ++i){
+			Model user = users.get(i);
 			user.render(batcher);
 		}
 		batcher.end();
