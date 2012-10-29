@@ -12,6 +12,6 @@ public class AndroidStarter extends AndroidApplication {
 		super.onCreate(savedInstanceState);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON); 
 		initialize(new RealTimeApp(), false);
-		System.out.println("asd");
+		System.out.println("dsdssdsdsdssd");
 	}
 }

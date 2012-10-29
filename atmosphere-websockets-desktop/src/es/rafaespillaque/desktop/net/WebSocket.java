@@ -1,20 +1,23 @@
 package es.rafaespillaque.desktop.net;
 
-import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.websocket.WebSocketUpgradeHandler;
+
+import de.roderick.weberknecht.WebSocketConnection;
+import de.roderick.weberknecht.WebSocketEventHandler;
+import de.roderick.weberknecht.WebSocketException;
+import de.roderick.weberknecht.WebSocketMessage;
 
 public class WebSocket {
 
-	private static final String WS_URL = "ws://ec2-54-247-44-127.eu-west-1.compute.amazonaws.com:8081/";
+	public static final String WS_URL = "ws://ec2-54-247-44-127.eu-west-1.compute.amazonaws.com:8081/";
 	private static WebSocket websocket;
-	private com.ning.http.client.websocket.WebSocket ws;
+	private de.roderick.weberknecht.WebSocket ws;
 	private String uuid;
 
 	private ArrayList<UpdateMessageListener> updateListeners = new ArrayList<UpdateMessageListener>();
@@ -22,54 +25,55 @@ public class WebSocket {
 	private JsonParser parser = new JsonParser();
 
 	private WebSocket() {
-		BaseWebSocketTextListener baseWS = new BaseWebSocketTextListener() {
+		URI url;
+		try {
+			url = new URI(WS_URL);
 
-			@Override
-			public void onMessage(String message) {
-				System.out.println("onMessage " + message);
-				JsonElement jElement = parser.parse(message);
-				JsonObject jObj = jElement.getAsJsonObject();
-				String type = jObj.get("type").getAsString();
+			ws = new WebSocketConnection(
+					url);
 
-				if (type.equals("uuid")) {
-					uuid = jObj.get("uuid").getAsString();
-					System.out.println("uuid obtenido: " + uuid);
-				} else if (type.equals("update")) {
-					for (int i = 0; i < updateListeners.size(); ++i) {
-						updateListeners.get(i).OnUpdateMessage(
-								jObj.get("uuid").getAsString(),
-								jObj.get("time").getAsFloat(),
-								jObj.get("dir").getAsString());
-					}
-				} else if (type.equals("newplayer")) {
-					for (int i = 0; i < updateListeners.size(); ++i) {
-						newPlayerListeners.get(i).OnNewPlayerMessage(jObj.get("uuid").getAsString());
+			ws.setEventHandler(new WebSocketEventHandler() {
+				public void onOpen() {
+					System.out.println("--open");
+				}
+
+				public void onMessage(WebSocketMessage message) {
+					System.out.println("onMessage " + message);
+					JsonElement jElement = parser.parse(message.getText());
+					JsonObject jObj = jElement.getAsJsonObject();
+					String type = jObj.get("type").getAsString();
+
+					if (type.equals("uuid")) {
+						uuid = jObj.get("uuid").getAsString();
+						System.out.println("uuid obtenido: " + uuid);
+					} else if (type.equals("update")) {
+						for (int i = 0; i < updateListeners.size(); ++i) {
+							updateListeners.get(i).OnUpdateMessage(
+									jObj.get("uuid").getAsString(),
+									jObj.get("time").getAsFloat(),
+									jObj.get("dir").getAsString());
+						}
+					} else if (type.equals("newplayer")) {
+						for (int i = 0; i < updateListeners.size(); ++i) {
+							newPlayerListeners.get(i).OnNewPlayerMessage(jObj.get("uuid").getAsString());
+						}
 					}
 				}
-			}
 
-			@Override
-			public void onOpen(
-					com.ning.http.client.websocket.WebSocket websocket) {
-				System.out.println("onOpen");
-			}
+				public void onClose() {
+					System.out.println("--close");
+				}
+			});
 
-		};
+			ws.connect();
 
-		AsyncHttpClient c = new AsyncHttpClient();
-		try {
-			ws = c.prepareGet(WS_URL)
-					.execute(
-							new WebSocketUpgradeHandler.Builder()
-									.addWebSocketListener(baseWS).build())
-					.get();
-		} catch (InterruptedException e) {
+		} catch (WebSocketException e) {
 			e.printStackTrace();
-		} catch (ExecutionException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+
+		} catch (URISyntaxException e1) {
+			e1.printStackTrace();
 		}
+
 
 	}
 
@@ -85,44 +89,22 @@ public class WebSocket {
 		return websocket;
 	}
 
-	public com.ning.http.client.websocket.WebSocket sendMessage(byte[] message) {
-		return ws.sendMessage(message);
-	}
 
-	public com.ning.http.client.websocket.WebSocket stream(byte[] fragment,
-			boolean last) {
-		return ws.stream(fragment, last);
-	}
-
-	public com.ning.http.client.websocket.WebSocket stream(byte[] fragment,
-			int offset, int len, boolean last) {
-		return ws.stream(fragment, offset, len, last);
-	}
-
-	public com.ning.http.client.websocket.WebSocket sendTextMessage(
+	public void sendTextMessage(
 			String message) {
-		return ws.sendTextMessage(message);
-	}
-
-	public com.ning.http.client.websocket.WebSocket streamText(String fragment,
-			boolean last) {
-		return ws.streamText(fragment, last);
-	}
-
-	public com.ning.http.client.websocket.WebSocket sendPing(byte[] payload) {
-		return ws.sendPing(payload);
-	}
-
-	public com.ning.http.client.websocket.WebSocket sendPong(byte[] payload) {
-		return ws.sendPong(payload);
-	}
-
-	public boolean isOpen() {
-		return ws.isOpen();
+		try {
+			ws.send(message);
+		} catch (WebSocketException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void close() {
-		ws.close();
+		try {
+			ws.close();
+		} catch (WebSocketException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public String getUUID() {
