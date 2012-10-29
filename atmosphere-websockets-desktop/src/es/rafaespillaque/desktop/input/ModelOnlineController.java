@@ -1,17 +1,18 @@
 package es.rafaespillaque.desktop.input;
 
+import java.util.ArrayList;
+
+import com.badlogic.gdx.utils.FloatArray;
+
 import es.rafaespillaque.desktop.net.UpdateMessageListener;
 import es.rafaespillaque.desktop.net.WebSocket2;
 
 public class ModelOnlineController extends ModelController {
 
-	private static final int SIZE = 100;
-	
 	private String uuid;
-    private String[] movs;
-    private float[] times;
+	private ArrayList<String> movs;
+	private FloatArray times;
 
-    private int count = 0;
     private int index = 0;
     private Object lock = new Object();
 
@@ -23,17 +24,15 @@ public class ModelOnlineController extends ModelController {
 			public void OnUpdateMessage(String id, float time, String dir) {
 				if (uuid.equals(id)) {
 					synchronized (lock) {
-						movs[count] = dir;
-						times[count] = time;
+						movs.add(dir);
+						times.add(time);
 					}
-
-					count++;
 				}
 			}
 		});
     	
-    	movs = new String[SIZE];
-    	times = new float[SIZE];
+    	movs = new ArrayList<String>();
+    	times = new FloatArray();
     	
     }
 
@@ -41,16 +40,16 @@ public class ModelOnlineController extends ModelController {
     public void update(float time) {
     	index = 0;
     	synchronized (lock) {
-            while (time >= times[index] && index < count) {
+            while (index < times.size && times.get(index) >= times.get(index)) {
                 InputEvent e = pool.obtain();
-                e.timestamp = times[index];
-                e.action = movs[index];
+                e.timestamp = times.get(index);
+                e.action = movs.get(index);
                 offer(e);
                 index++;
             }
-            count = 0;
+            times.clear();
+            movs.clear();
 		}
-
     }
 
 }

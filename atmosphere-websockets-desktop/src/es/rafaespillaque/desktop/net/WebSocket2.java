@@ -16,6 +16,7 @@ import de.roderick.weberknecht.WebSocketMessage;
 public class WebSocket2 {
 
 	private static final String WS_URL = WebSocket.WS_URL;
+	
 	private static WebSocket2 websocket;
 	private de.roderick.weberknecht.WebSocket ws;
 	private String uuid;
@@ -23,8 +24,9 @@ public class WebSocket2 {
 	private ArrayList<UpdateMessageListener> updateListeners = new ArrayList<UpdateMessageListener>();
 	private ArrayList<NewPlayerMessageListener> newPlayerListeners = new ArrayList<NewPlayerMessageListener>();
 	private JsonParser parser = new JsonParser();
-
+	
 	private WebSocket2() {
+
 		URI url;
 		try {
 			url = new URI(WS_URL);
@@ -32,7 +34,6 @@ public class WebSocket2 {
 			ws = new WebSocketConnection(
 					url);
 
-			// Register Event Handlers
 			ws.setEventHandler(new WebSocketEventHandler() {
 				public void onOpen() {
 					System.out.println("--open");
@@ -66,15 +67,8 @@ public class WebSocket2 {
 				}
 			});
 
-			// Establish WebSocket Connection
-
 			ws.connect();
 
-			// Send UTF-8 Text
-//			websocket.send("hello world");
-
-			// Close WebSocket Connection
-//			websocket.close();
 		} catch (WebSocketException e) {
 			e.printStackTrace();
 
@@ -100,10 +94,10 @@ public class WebSocket2 {
 
 	public void sendTextMessage(
 			String message) {
+
 		try {
 			ws.send(message);
 		} catch (WebSocketException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -112,7 +106,6 @@ public class WebSocket2 {
 		try {
 			ws.close();
 		} catch (WebSocketException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

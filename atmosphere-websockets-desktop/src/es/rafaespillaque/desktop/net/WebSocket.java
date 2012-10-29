@@ -16,6 +16,8 @@ import de.roderick.weberknecht.WebSocketMessage;
 public class WebSocket {
 
 	public static final String WS_URL = "ws://ec2-54-247-44-127.eu-west-1.compute.amazonaws.com:8081/";
+//	public static final String WS_URL = "ws://localhost:8081/";
+	
 	private static WebSocket websocket;
 	private de.roderick.weberknecht.WebSocket ws;
 	private String uuid;
@@ -23,8 +25,9 @@ public class WebSocket {
 	private ArrayList<UpdateMessageListener> updateListeners = new ArrayList<UpdateMessageListener>();
 	private ArrayList<NewPlayerMessageListener> newPlayerListeners = new ArrayList<NewPlayerMessageListener>();
 	private JsonParser parser = new JsonParser();
-
+	
 	private WebSocket() {
+
 		URI url;
 		try {
 			url = new URI(WS_URL);
@@ -92,6 +95,7 @@ public class WebSocket {
 
 	public void sendTextMessage(
 			String message) {
+
 		try {
 			ws.send(message);
 		} catch (WebSocketException e) {
