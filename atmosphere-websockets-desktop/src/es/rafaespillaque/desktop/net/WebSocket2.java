@@ -4,6 +4,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -49,11 +50,17 @@ public class WebSocket2 {
 						uuid = jObj.get("uuid").getAsString();
 						System.out.println("uuid obtenido: " + uuid);
 					} else if (type.equals("update")) {
-						for (int i = 0; i < updateListeners.size(); ++i) {
-							updateListeners.get(i).OnUpdateMessage(
-									jObj.get("uuid").getAsString(),
-									jObj.get("time").getAsFloat(),
-									jObj.get("dir").getAsString());
+						String uuid = jObj.get("uuid").getAsString();
+						JsonArray jArr = jObj.getAsJsonArray("actions");
+						JsonObject jAction;
+						for(int action = 0; action < jArr.size(); ++action){
+							jAction = jArr.get(action).getAsJsonObject();
+							for (int listener = 0; listener < updateListeners.size(); ++listener) {
+								updateListeners.get(listener).OnUpdateMessage(
+										uuid,
+										jAction.get("time").getAsFloat(),
+										jAction.get("dir").getAsString());
+							}
 						}
 					} else if (type.equals("newplayer")) {
 						for (int i = 0; i < updateListeners.size(); ++i) {

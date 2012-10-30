@@ -19,6 +19,7 @@ public class Model {
 	
 	private ModelController controller;
 	private StringBuilder sBuilder;
+	private float lastSentTime = 0f;
 	
 	public Model(String uuid, boolean local) {
 		this.uuid = uuid;
@@ -30,9 +31,19 @@ public class Model {
 			controller = new ModelOnlineController(uuid);
 		
 		sBuilder = new StringBuilder();
+		sBuilder.append("{type:update,");
+    	sBuilder.append("uuid:");
+    	sBuilder.append(uuid);
+    	sBuilder.append(",actions:[");
 	}
 	
 	public void update(float dt, float time) {
+		if(!local){
+			time = time - 5;
+			if(time < 0) time = 0;
+			System.out.println(time+"");
+		}
+		
 		controller.update(time);
 		
 		InputEvent event;
@@ -61,16 +72,33 @@ public class Model {
 	}
 
     private void sendPos(String action, float time) {
-    	sBuilder.delete(0, sBuilder.length());
-    	sBuilder.append("{type:update,");
-    	sBuilder.append("uuid:");
-    	sBuilder.append(uuid);
-    	sBuilder.append(",dir:");
-    	sBuilder.append(action);
-    	sBuilder.append(",time:");
-    	sBuilder.append(time);
-    	sBuilder.append("}");
-    	WebSocket.get().sendTextMessage(sBuilder.toString());
+    	//FIXME Enviar cada 1 segundo se haya movido o no. Almacenar ¿InputEvents? y luego mandarlos
+    	//Separar este método en varios. (init/añadir/enviar)
+    	if(time <= lastSentTime + 1){
+        	sBuilder.append("{dir:");
+        	sBuilder.append(action);
+        	sBuilder.append(",time:");
+        	sBuilder.append(time);
+        	sBuilder.append("},");
+        	
+    	}else{
+    		sBuilder.append("{dir:");
+        	sBuilder.append(action);
+        	sBuilder.append(",time:");
+        	sBuilder.append(time);
+        	sBuilder.append("}");
+        	
+        	sBuilder.append("]}");
+        	
+        	WebSocket.get().sendTextMessage(sBuilder.toString());
+        	lastSentTime = time;
+        	sBuilder.delete(0, sBuilder.length());
+        	
+        	sBuilder.append("{type:update,");
+        	sBuilder.append("uuid:");
+        	sBuilder.append(uuid);
+        	sBuilder.append(",actions:[");
+    	}
     }
 	
 	public void setLocal(boolean local) {

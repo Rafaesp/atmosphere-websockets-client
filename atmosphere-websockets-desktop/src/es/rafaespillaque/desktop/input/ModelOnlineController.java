@@ -40,15 +40,18 @@ public class ModelOnlineController extends ModelController {
     public void update(float time) {
     	index = 0;
     	synchronized (lock) {
-            while (index < times.size && times.get(index) >= times.get(index)) {
+            while (index < times.size && time >= times.get(index)) {
                 InputEvent e = pool.obtain();
                 e.timestamp = times.get(index);
                 e.action = movs.get(index);
                 offer(e);
+                times.removeIndex(index);
+                movs.remove(index);
                 index++;
             }
-            times.clear();
-            movs.clear();
+            //FIXME Hay que borrar solo los que se usan, para ello mejor usar
+            //alguna estructura que tenga un indice por abajo y un indice por arriba
+            //para poder ir recortando desde abajo
 		}
     }
 
