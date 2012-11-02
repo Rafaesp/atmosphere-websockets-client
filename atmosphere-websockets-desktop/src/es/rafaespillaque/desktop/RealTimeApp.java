@@ -18,7 +18,7 @@ public class RealTimeApp implements ApplicationListener {
 	private Model user;
 	private final float dt = 0.01f;
 	private float accumulator = 0f;
-	private float time = 0f;
+	public static float time = 0f;
 	private boolean init = false;
 	
 	@Override

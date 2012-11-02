@@ -5,7 +5,7 @@ import com.badlogic.gdx.math.Vector2;
 
 
 public class ModelMouseController extends ModelController{
-    private Vector2 pointer;
+	private Vector2 pointer;
 
     public ModelMouseController() {
         pointer = new Vector2();
@@ -30,7 +30,11 @@ public class ModelMouseController extends ModelController{
             if (pointer.y < Gdx.graphics.getHeight() / 4) {
                 event.action = InputEvent.UP;
             }
-            
+            offer(event);
+        }else{
+        	InputEvent event = pool.obtain();
+            event.timestamp = time;
+            event.action = InputEvent.NOTH;
             offer(event);
         }
     }

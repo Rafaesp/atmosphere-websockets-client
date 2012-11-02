@@ -16,8 +16,8 @@ import de.roderick.weberknecht.WebSocketMessage;
 
 public class WebSocket {
 
-//	public static final String WS_URL = "ws://ec2-54-247-44-127.eu-west-1.compute.amazonaws.com:8081/";
-	public static final String WS_URL = "ws://localhost:8081/";
+	public static final String WS_URL = "ws://ec2-54-247-44-127.eu-west-1.compute.amazonaws.com:8081/";
+//	public static final String WS_URL = "ws://localhost:8081/";
 	
 	private static WebSocket websocket;
 	private de.roderick.weberknecht.WebSocket ws;
@@ -42,7 +42,6 @@ public class WebSocket {
 				}
 
 				public void onMessage(WebSocketMessage message) {
-					System.out.println("onMessage " + message);
 					JsonElement jElement = parser.parse(message.getText());
 					JsonObject jObj = jElement.getAsJsonObject();
 					String type = jObj.get("type").getAsString();

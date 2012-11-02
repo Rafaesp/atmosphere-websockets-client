@@ -41,7 +41,6 @@ public class WebSocket2 {
 				}
 
 				public void onMessage(WebSocketMessage message) {
-					System.out.println("onMessage " + message);
 					JsonElement jElement = parser.parse(message.getText());
 					JsonObject jObj = jElement.getAsJsonObject();
 					String type = jObj.get("type").getAsString();

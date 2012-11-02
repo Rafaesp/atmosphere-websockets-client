@@ -3,6 +3,7 @@ package es.rafaespillaque.desktop.input;
 
 
 public class InputEvent{
+	public static final String NOTH = "n";
 	public static final String LEFT = "l";
 	public static final String RIGHT = "r";
 	public static final String UP = "u";

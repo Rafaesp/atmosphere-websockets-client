@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.badlogic.gdx.utils.FloatArray;
 
+import es.rafaespillaque.desktop.RealTimeApp;
 import es.rafaespillaque.desktop.net.UpdateMessageListener;
 import es.rafaespillaque.desktop.net.WebSocket2;
 
@@ -23,6 +24,7 @@ public class ModelOnlineController extends ModelController {
 			@Override
 			public void OnUpdateMessage(String id, float time, String dir) {
 				if (uuid.equals(id)) {
+					System.out.println(RealTimeApp.time-time+" - Nuevo update: "+dir + " - "+time);
 					synchronized (lock) {
 						movs.add(dir);
 						times.add(time);

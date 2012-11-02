@@ -19,6 +19,10 @@ public abstract class ModelController {
 	public InputEvent poll() {
 		return queue.poll();
 	}
+	
+	public boolean isEmpty(){
+		return queue.isEmpty();
+	}
 
 	public void free(InputEvent e) {
 		pool.free(e);

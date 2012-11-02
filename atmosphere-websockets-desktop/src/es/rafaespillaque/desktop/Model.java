@@ -16,6 +16,7 @@ public class Model {
 	public Vector2 pos = new Vector2(0, 0);
 	public Vector2 vel = new Vector2(0, 0);
 	private boolean local = false;
+	private String lastMov = "init";
 	
 	private ModelController controller;
 	private StringBuilder sBuilder;
@@ -38,29 +39,38 @@ public class Model {
 	}
 	
 	public void update(float dt, float time) {
-		if(!local){
-			time = time - 5;
-			if(time < 0) time = 0;
-			System.out.println(time+"");
-		}
-		
 		controller.update(time);
 		
 		InputEvent event;
-		while((event = controller.poll()) != null) {
-		    if(event.action.equals(InputEvent.LEFT)) {
+		if(controller.isEmpty()){
+			if(lastMov.equals(InputEvent.NOTH)){
+			}else if(lastMov.equals(InputEvent.LEFT)) {
                 pos.x += -1f * dt * VELOCITY;
-		    }else if(event.action.equals(InputEvent.RIGHT)){
+		    }else if(lastMov.equals(InputEvent.RIGHT)){
                 pos.x += 1f * dt * VELOCITY;
-            }else if(event.action.equals(InputEvent.UP)){
+            }else if(lastMov.equals(InputEvent.UP)){
             	pos.y += 1f * dt * VELOCITY;
-            }else if(event.action.equals(InputEvent.DOWN)){
+            }else if(lastMov.equals(InputEvent.DOWN)){
             	pos.y -= 1f * dt * VELOCITY;
             }
-		    if(local){
-		    	sendPos(event.action, time);
-		    }
-		    controller.free(event);
+		}else{
+			while((event = controller.poll()) != null) {
+			    if(event.action.equals(InputEvent.LEFT)) {
+	                pos.x += -1f * dt * VELOCITY;
+			    }else if(event.action.equals(InputEvent.RIGHT)){
+	                pos.x += 1f * dt * VELOCITY;
+	            }else if(event.action.equals(InputEvent.UP)){
+	            	pos.y += 1f * dt * VELOCITY;
+	            }else if(event.action.equals(InputEvent.DOWN)){
+	            	pos.y += -1f * dt * VELOCITY;
+	            }
+			    if(local && !event.action.equals(lastMov)){
+			    	sendPos(event.action, time);
+			    	System.out.println("Enviado "+event.action + " - "+event.timestamp);
+			    }
+			    lastMov = event.action;
+			    controller.free(event);
+			}
 		}
 	}
 	
@@ -74,14 +84,14 @@ public class Model {
     private void sendPos(String action, float time) {
     	//FIXME Enviar cada 1 segundo se haya movido o no. Almacenar ¿InputEvents? y luego mandarlos
     	//Separar este método en varios. (init/añadir/enviar)
-    	if(time <= lastSentTime + 1){
-        	sBuilder.append("{dir:");
-        	sBuilder.append(action);
-        	sBuilder.append(",time:");
-        	sBuilder.append(time);
-        	sBuilder.append("},");
-        	
-    	}else{
+//    	if(time <= lastSentTime + 1){
+//        	sBuilder.append("{dir:");
+//        	sBuilder.append(action);
+//        	sBuilder.append(",time:");
+//        	sBuilder.append(time);
+//        	sBuilder.append("},");
+//        	
+//    	}else{
     		sBuilder.append("{dir:");
         	sBuilder.append(action);
         	sBuilder.append(",time:");
@@ -98,7 +108,7 @@ public class Model {
         	sBuilder.append("uuid:");
         	sBuilder.append(uuid);
         	sBuilder.append(",actions:[");
-    	}
+//    	}
     }
 	
 	public void setLocal(boolean local) {
