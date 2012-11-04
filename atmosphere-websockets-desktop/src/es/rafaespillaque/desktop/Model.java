@@ -16,7 +16,6 @@ public class Model {
 	public Vector2 pos = new Vector2(0, 0);
 	public Vector2 vel = new Vector2(0, 0);
 	private boolean local = false;
-	private String lastMov = "init";
 	
 	private ModelController controller;
 	private StringBuilder sBuilder;
@@ -39,39 +38,31 @@ public class Model {
 	}
 	
 	public void update(float dt, float time) {
-		controller.update(time);
-		
-		InputEvent event;
-		if(controller.isEmpty()){
-			if(lastMov.equals(InputEvent.NOTH)){
-			}else if(lastMov.equals(InputEvent.LEFT)) {
-                pos.x += -1f * dt * VELOCITY;
-		    }else if(lastMov.equals(InputEvent.RIGHT)){
-                pos.x += 1f * dt * VELOCITY;
-            }else if(lastMov.equals(InputEvent.UP)){
-            	pos.y += 1f * dt * VELOCITY;
-            }else if(lastMov.equals(InputEvent.DOWN)){
-            	pos.y -= 1f * dt * VELOCITY;
-            }
-		}else{
-			while((event = controller.poll()) != null) {
-			    if(event.action.equals(InputEvent.LEFT)) {
-	                pos.x += -1f * dt * VELOCITY;
-			    }else if(event.action.equals(InputEvent.RIGHT)){
-	                pos.x += 1f * dt * VELOCITY;
-	            }else if(event.action.equals(InputEvent.UP)){
-	            	pos.y += 1f * dt * VELOCITY;
-	            }else if(event.action.equals(InputEvent.DOWN)){
-	            	pos.y += -1f * dt * VELOCITY;
-	            }
-			    if(local && !event.action.equals(lastMov)){
-			    	sendPos(event.action, time);
-			    	System.out.println("Enviado "+event.action + " - "+event.timestamp);
-			    }
-			    lastMov = event.action;
-			    controller.free(event);
-			}
+		if (!local) {
+			time = time - 1;
+			if (time < 0)
+				time = 0;
 		}
+		controller.update(time);
+
+		InputEvent event;
+		while ((event = controller.poll()) != null) {
+			if (event.action.equals(InputEvent.LEFT)) {
+				pos.x += -1f * dt * VELOCITY;
+			} else if (event.action.equals(InputEvent.RIGHT)) {
+				pos.x += 1f * dt * VELOCITY;
+			} else if (event.action.equals(InputEvent.UP)) {
+				pos.y += 1f * dt * VELOCITY;
+			} else if (event.action.equals(InputEvent.DOWN)) {
+				pos.y += -1f * dt * VELOCITY;
+			}
+			if (local) {
+				sendPos(event.action, time);
+				System.out.println("Enviado " + event.action + " - " + event.timestamp);
+			}
+			controller.free(event);
+		}
+
 	}
 	
 	public void render(SpriteBatch batcher) {

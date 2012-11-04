@@ -1,8 +1,5 @@
 package es.rafaespillaque.desktop;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL10;
@@ -14,7 +11,7 @@ import es.rafaespillaque.desktop.net.WebSocket2;
 
 public class RealTimeApp implements ApplicationListener {
 	private SpriteBatch batcher;
-	private LinkedList<Model> users;
+	private Model user2;
 	private Model user;
 	private final float dt = 0.01f;
 	private float accumulator = 0f;
@@ -41,7 +38,6 @@ public class RealTimeApp implements ApplicationListener {
 				}
 				
 				batcher = new SpriteBatch();
-				users = new LinkedList<Model>();
 				user = new Model(uuid, true);
 				user.pos.set(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
 				
@@ -51,9 +47,8 @@ public class RealTimeApp implements ApplicationListener {
 					} catch (InterruptedException e) {
 					}
 				}
-				Model m2 = new Model(uuid, false);
-				m2.pos.set(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + 100);
-				users.add(m2);
+				user2 = new Model(uuid, false);
+				user2.pos.set(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + 100);
 
 
 				WebSocket.get().addNewPlayerMessageListener(
@@ -61,9 +56,6 @@ public class RealTimeApp implements ApplicationListener {
 
 							@Override
 							public void OnNewPlayerMessage(String uuid) {
-								Model m = new Model(uuid, false);
-								m.pos.set(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + 100);
-								users.add(m);
 							}
 						});
 				
@@ -94,10 +86,7 @@ public class RealTimeApp implements ApplicationListener {
 
 		while (accumulator >= dt) {
 			user.update(dt, time);
-			for(int i = 0; i<users.size(); ++i){
-				Model user = users.get(i);
-				user.update(dt, time);
-			}
+			user2.update(dt, time);
 			accumulator -= dt;
 		}
 		
@@ -114,10 +103,7 @@ public class RealTimeApp implements ApplicationListener {
 
 		batcher.begin();
 		user.render(batcher);
-		for(int i = 0; i<users.size(); ++i){
-			Model user = users.get(i);
-			user.render(batcher);
-		}
+		user2.render(batcher);
 		batcher.end();
 	}
 

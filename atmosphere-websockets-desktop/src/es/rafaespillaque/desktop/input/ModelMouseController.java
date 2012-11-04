@@ -31,11 +31,6 @@ public class ModelMouseController extends ModelController{
                 event.action = InputEvent.UP;
             }
             offer(event);
-        }else{
-        	InputEvent event = pool.obtain();
-            event.timestamp = time;
-            event.action = InputEvent.NOTH;
-            offer(event);
         }
     }
     

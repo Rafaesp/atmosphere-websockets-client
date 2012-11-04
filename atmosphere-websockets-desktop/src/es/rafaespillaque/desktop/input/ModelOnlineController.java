@@ -16,6 +16,7 @@ public class ModelOnlineController extends ModelController {
 
     private int index = 0;
     private Object lock = new Object();
+    private boolean buffering = true;
 
     public ModelOnlineController(String id) {
     	uuid = id;
@@ -42,10 +43,17 @@ public class ModelOnlineController extends ModelController {
     public void update(float time) {
     	index = 0;
     	synchronized (lock) {
-            while (index < times.size && time >= times.get(index)) {
+    		if(times.size >= 2 && buffering){
+    			buffering = false;
+    		}
+    		else if(times.size == 0 && !buffering){
+    			buffering = true;
+    		}
+            while (!buffering && index < times.size && time >= times.get(index)) {
                 InputEvent e = pool.obtain();
                 e.timestamp = times.get(index);
                 e.action = movs.get(index);
+                System.out.println(time + "-->"+e.action + "   " +e.timestamp);
                 offer(e);
                 times.removeIndex(index);
                 movs.remove(index);
