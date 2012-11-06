@@ -62,7 +62,7 @@ public class WebSocket2 {
 							}
 						}
 					} else if (type.equals("newplayer")) {
-						for (int i = 0; i < updateListeners.size(); ++i) {
+						for (int i = 0; i < newPlayerListeners.size(); ++i) {
 							newPlayerListeners.get(i).OnNewPlayerMessage(jObj.get("uuid").getAsString());
 						}
 					}

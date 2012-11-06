@@ -7,11 +7,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import es.rafaespillaque.desktop.net.NewPlayerMessageListener;
 import es.rafaespillaque.desktop.net.WebSocket;
-import es.rafaespillaque.desktop.net.WebSocket2;
 
 public class RealTimeApp implements ApplicationListener {
 	private SpriteBatch batcher;
-	private Model user2;
 	private Model user;
 	private final float dt = 0.01f;
 	private float accumulator = 0f;
@@ -41,14 +39,14 @@ public class RealTimeApp implements ApplicationListener {
 				user = new Model(uuid, true);
 				user.pos.set(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
 				
-				while((WebSocket2.get().getUUID()) == null){
-					try {
-						Thread.sleep(10);
-					} catch (InterruptedException e) {
-					}
-				}
-				user2 = new Model(uuid, false);
-				user2.pos.set(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + 100);
+//				while((WebSocket2.get().getUUID()) == null){
+//					try {
+//						Thread.sleep(10);
+//					} catch (InterruptedException e) {
+//					}
+//				}
+//				user2 = new Model(uuid, false);
+//				user2.pos.set(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + 100);
 
 
 				WebSocket.get().addNewPlayerMessageListener(
@@ -86,7 +84,6 @@ public class RealTimeApp implements ApplicationListener {
 
 		while (accumulator >= dt) {
 			user.update(dt, time);
-			user2.update(dt, time);
 			accumulator -= dt;
 		}
 		
@@ -103,7 +100,6 @@ public class RealTimeApp implements ApplicationListener {
 
 		batcher.begin();
 		user.render(batcher);
-		user2.render(batcher);
 		batcher.end();
 	}
 

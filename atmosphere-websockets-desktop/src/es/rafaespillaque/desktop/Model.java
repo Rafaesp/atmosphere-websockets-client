@@ -105,5 +105,9 @@ public class Model {
 	public void setLocal(boolean local) {
 		this.local = local;
 	}
+	
+	public String toString(){
+		return String.format("%s -> {x:%f, y:%f}", uuid, pos.x, pos.y);
+	}
 
 }

@@ -25,7 +25,6 @@ public class ModelOnlineController extends ModelController {
 			@Override
 			public void OnUpdateMessage(String id, float time, String dir) {
 				if (uuid.equals(id)) {
-					System.out.println(RealTimeApp.time-time+" - Nuevo update: "+dir + " - "+time);
 					synchronized (lock) {
 						movs.add(dir);
 						times.add(time);
@@ -53,7 +52,6 @@ public class ModelOnlineController extends ModelController {
                 InputEvent e = pool.obtain();
                 e.timestamp = times.get(index);
                 e.action = movs.get(index);
-                System.out.println(time + "-->"+e.action + "   " +e.timestamp);
                 offer(e);
                 times.removeIndex(index);
                 movs.remove(index);

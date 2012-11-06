@@ -28,7 +28,7 @@ public class WebSocket {
 	private JsonParser parser = new JsonParser();
 	
 	private WebSocket() {
-
+		//FIXME Lios de estáticos - no estático.
 		URI url;
 		try {
 			url = new URI(WS_URL);
@@ -63,7 +63,7 @@ public class WebSocket {
 							}
 						}
 					} else if (type.equals("newplayer")) {
-						for (int i = 0; i < updateListeners.size(); ++i) {
+						for (int i = 0; i < newPlayerListeners.size(); ++i) {
 							newPlayerListeners.get(i).OnNewPlayerMessage(jObj.get("uuid").getAsString());
 						}
 					}
